@@ -74,7 +74,29 @@ void MultikMD::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 
 	//цвет для атомов
 	SolidBrush b_atom(Color::Orange);
+	Pen p_setka(Color::Black);
 	PointF points[2];
+	//рисуем линии
+	for (int i = 0; i < atoms.size(); i++)
+	{
+		points[0] = PointF((REAL)0., (REAL)i);
+		//запоминаем правую нижнюю точку прямоугольника
+		points[1] = PointF((REAL)(maxX - 1),
+			(REAL)i);
+		//преобразуем координаты
+		matr.TransformPoints(points, 2);
+		draw_in_buffer.DrawLine(&p_setka, points[0], points[1]);
+		for (int j = 0; j < atoms[i].size(); j++)
+		{
+			points[0] = PointF((REAL)j, (REAL)0);
+			//запоминаем правую нижнюю точку прямоугольника
+			points[1] = PointF((REAL)j,
+				(REAL)(maxY - 1));
+			//преобразуем координаты
+			matr.TransformPoints(points, 2);
+			draw_in_buffer.DrawLine(&p_setka, points[0], points[1]);
+		}
+	}
 	//рисуем атомы
 	for (int i = 0; i < atoms.size(); i++)
 	{

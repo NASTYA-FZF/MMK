@@ -22,6 +22,9 @@ CMMKDlg::CMMKDlg(CWnd* pParent /*=nullptr*/)
 	, maxY(100)
 	, maxT(100)
 	, xmax(50)
+	, t1(10)
+	, t2(50)
+	, t3(98)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -33,6 +36,9 @@ void CMMKDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT1, maxY);
 	DDX_Text(pDX, IDC_EDIT2, maxT);
 	DDX_Text(pDX, IDC_EDIT3, xmax);
+	DDX_Text(pDX, IDC_EDIT4, t1);
+	DDX_Text(pDX, IDC_EDIT5, t2);
+	DDX_Text(pDX, IDC_EDIT6, t3);
 }
 
 BEGIN_MESSAGE_MAP(CMMKDlg, CDialogEx)
@@ -98,7 +104,7 @@ HCURSOR CMMKDlg::OnQueryDragIcon()
 DWORD __stdcall CMMKDlg::MyThreadFunction(LPVOID lpParam)
 {
 	CMMKDlg* my_process = (CMMKDlg*)lpParam;
-	my_process->material.Main(my_process->maxT, my_process->maxY, my_process->xmax);
+	my_process->material.Main(my_process->maxT, my_process->maxY, my_process->xmax, std::vector<int>({ my_process->t1, my_process->t2, my_process->t3 }));
 	return 0;
 }
 

@@ -42,4 +42,7 @@ public:
 	diffuz material;
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	int xmax;
+	int t1;
+	int t2;
+	int t3;
 };

@@ -55,6 +55,8 @@ void diffuz::Move(atom& my_atom)
 	{
 	case 1:
 		x++;
+		if (ControlX(x))
+			return;
 		if (!occupansy[y][x])
 		{
 			occupansy[y][x] = true;
@@ -74,6 +76,8 @@ void diffuz::Move(atom& my_atom)
 		break;
 	case 3:
 		x--;
+		if (ControlX(x))
+			return;
 		if (!occupansy[y][x])
 		{
 			occupansy[y][x] = true;
@@ -103,9 +107,10 @@ void diffuz::PeriodCond(int& y)
 			y -= maxY;
 }
 
-void diffuz::Main(int tmax, int ymax, int xmax)
+void diffuz::Main(int tmax, int ymax, int xmax, std::vector<int> part_time)
 {
 	atoms.clear();
+	Cxt.clear();
 	maxY = ymax;
 	EnterCriticalSection(&cs);
 	occupansy = vector<vector<bool>>(ymax, vector<bool>(xmax));
@@ -117,10 +122,58 @@ void diffuz::Main(int tmax, int ymax, int xmax)
 		EnterCriticalSection(&cs);
 		OneMKSunlimited();
 		LeaveCriticalSection(&cs);
+		if (part_time.end() != find(part_time.begin(), part_time.end(), t))
+			CalcCxt(xmax);
+		if (stop) break;
 	}
+	printCxt(part_time);
 }
 
 std::vector<std::vector<bool>> diffuz::GetPosition()
 {
 	return occupansy;
+}
+
+void diffuz::CalcCxt(int xmax)
+{
+	vector<double> Cx(xmax, 0);
+	for (int i = 0; i < xmax; i++)
+	{
+		EnterCriticalSection(&cs);
+		for (int j = 0; j < maxY; j++)
+		{
+			Cx[i] += occupansy[j][i] ? 1 : 0;
+		}
+		LeaveCriticalSection(&cs);
+		Cx[i] /= maxY;
+	}
+	Cxt.push_back(Cx);
+}
+
+void diffuz::printCxt(std::vector<int> part_time)
+{
+	ofstream output("CxtUnlimited.txt");
+	string str_x, str_t, str_Cxt;
+	for (int i = 0; i < Cxt.size(); i++)
+	{
+		str_t = to_string(part_time[i]);
+		replace(str_t.begin(), str_t.end(), '.', ',');
+		for (int j = 0; j < Cxt[i].size(); j++)
+		{
+			str_x = to_string(j);
+			str_Cxt = to_string(Cxt[i][j]);
+			replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+			replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+
+			output << str_t << "\t" << str_x << "\t" << str_Cxt << endl;
+		}
+	}
+	output.close();
+}
+
+bool diffuz::ControlX(int x)
+{
+	if (x >= occupansy.size() || x < 0)
+		stop = true;
+	return stop;
 }
