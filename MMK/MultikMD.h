@@ -18,7 +18,7 @@ public:
 	//надо для запуска gdi+
 	UINT_PTR token;
 	//коориднаты атомов
-	std::vector<std::vector<bool>> atoms;
+	std::vector<std::pair<int, int>> atoms;
 	//радиус атомов, максимумы и минимумы изображения
 	double r_atom, maxX, maxY, minX, minY;
 	//параметры масштабирования изображения

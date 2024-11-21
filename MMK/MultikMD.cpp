@@ -77,7 +77,7 @@ void MultikMD::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	Pen p_setka(Color::Black);
 	PointF points[2];
 	//рисуем линии
-	for (int i = 0; i < atoms.size(); i++)
+	for (int i = 0; i < maxY; i++)
 	{
 		points[0] = PointF((REAL)0., (REAL)i);
 		//запоминаем правую нижнюю точку прямоугольника
@@ -86,7 +86,7 @@ void MultikMD::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 		//преобразуем координаты
 		matr.TransformPoints(points, 2);
 		draw_in_buffer.DrawLine(&p_setka, points[0], points[1]);
-		for (int j = 0; j < atoms[i].size(); j++)
+		for (int j = 0; j < maxX; j++)
 		{
 			points[0] = PointF((REAL)j, (REAL)0);
 			//запоминаем правую нижнюю точку прямоугольника
@@ -100,22 +100,17 @@ void MultikMD::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	//рисуем атомы
 	for (int i = 0; i < atoms.size(); i++)
 	{
-		for (int j = 0; j < atoms[i].size(); j++)
-		{
-			if (!atoms[i][j])
-				continue;
-			//запоминаем левую верхную точку прямоугольника, ограничивающего эллипс (круг)
-			points[0] = PointF((REAL)(j - r_atom),
-				(REAL)(i - r_atom));
-			//запоминаем правую нижнюю точку прямоугольника
-			points[1] = PointF((REAL)(j + r_atom),
-				(REAL)(i + r_atom));
-			//преобразуем координаты
-			matr.TransformPoints(points, 2);
-			//рисуем точку
-			draw_in_buffer.FillEllipse(&b_atom, points[0].X,
-				points[0].Y, points[1].X - points[0].X, points[1].Y - points[0].Y);
-		}
+		//запоминаем левую верхную точку прямоугольника, ограничивающего эллипс (круг)
+		points[0] = PointF((REAL)(atoms[i].first - r_atom),
+			(REAL)(atoms[i].second - r_atom));
+		//запоминаем правую нижнюю точку прямоугольника
+		points[1] = PointF((REAL)(atoms[i].first + r_atom),
+			(REAL)(atoms[i].second + r_atom));
+		//преобразуем координаты
+		matr.TransformPoints(points, 2);
+		//рисуем точку
+		draw_in_buffer.FillEllipse(&b_atom, points[0].X,
+			points[0].Y, points[1].X - points[0].X, points[1].Y - points[0].Y);
 	}
 
 	//выводи из буфера

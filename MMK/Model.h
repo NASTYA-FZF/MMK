@@ -30,9 +30,10 @@ class diffuz
 	std::vector<std::vector<bool>> occupansy;
 	//графики концентраций 3 шт.
 	std::vector<std::vector<double>> Cxt;
-	//дл€ периодических гу
+	std::vector<std::vector<double>> TheorCxt;
+	//дл€ периодических гу (число обозначает число пустых узлов)
 	int period;
-	//дл€ окошечного гу
+	//дл€ окошечного гу (в середине кака€ дол€ окна)
 	double part_window;
 	//максимальное кол-во атомов по вертикали
 	int maxY;
@@ -40,30 +41,45 @@ class diffuz
 public:
 	//крит секци€
 	CRITICAL_SECTION cs;
+	CRITICAL_SECTION cs_pause;
+	CRITICAL_SECTION cs_stop;
 	//флаг остановки
 	bool stop;
-	diffuz() { InitializeCriticalSection(&cs); srand(time(NULL)); stop = false; } //ѕќƒ”ћј“№  ”ƒј ¬ќ“ Ќ”“№ «ј“–ј¬ ” ƒЋя √≈Ќ≈–ј÷»»
-	~diffuz() { DeleteCriticalSection(&cs); }
+	bool pause;
+	diffuz() { 
+		InitializeCriticalSection(&cs); 
+		InitializeCriticalSection(&cs_pause);
+		InitializeCriticalSection(&cs_stop);
+		srand(time(NULL)); stop = false; pause = false;
+	} //ѕќƒ”ћј“№  ”ƒј ¬ќ“ Ќ”“№ «ј“–ј¬ ” ƒЋя √≈Ќ≈–ј÷»»
+	~diffuz() { DeleteCriticalSection(&cs); DeleteCriticalSection(&cs_pause); DeleteCriticalSection(&cs_stop); }
 	//установить начальные атомы
 	void SetSurfacePos(condition my_cond);
 	//неогр источник
 	void SetUnlimitedCond();
+	//неогр. источник, но с дырами
+	void SetUnlimitedNotAll();
+	void SetWind();
 	//1-право, 2-вверх, 3-лево, 4-низ
 	int GetMove();
 	//один ћ Ў
-	void OneMKSunlimited();
+	void OneMKSunlimited(condition my_cond);
+	void OneMKSunlimitedNotAll();
+	void OneMKSwind();
 	//ƒвинуть 1 атом
 	void Move(atom& my_atom);
 	//периодические гу по переходу внизу и сверху
 	void PeriodCond(int& y);
 	//главна функци€
-	void Main(int tmax, int ymax, int xmax, std::vector<int> part_time);
+	void Main(int tmax, int ymax, int xmax, std::vector<int> part_time, int _period, double _part_wnd, condition cond);
 	//получить инфу о зан€тых положени€х
-	std::vector<std::vector<bool>> GetPosition();
+	std::vector<std::pair<int, int>> GetPosition();
 	//рассчет концентрации
 	void CalcCxt(int xmax);
 	//печать значений концентрации при неогр источнике
 	void printCxt(std::vector<int> part_time);
 	// онтроль горизонтальной оси x
 	bool ControlX(int x);
+	//вычисление теор зависимости концентрации (обсудить с ¬асиным)
+	void CalcTheorCxt(int xmax);
 };
