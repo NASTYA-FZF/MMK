@@ -274,3 +274,14 @@ bool diffuz::ControlX(int x)
 		stop = true;
 	return stop;
 }
+
+void diffuz::CalcTheorCxt(int xmax, double D, int t)
+{
+	vector<double> Cx(xmax, 0);
+	double C0 = Cxt.back()[0];
+	for (int i = 0; i < xmax; i++)
+	{
+		Cx[i] = C0 * erfc(i / (2. * sqrt(D * t)));
+	}
+	TheorCxt.push_back(Cx);
+}

@@ -80,6 +80,6 @@ public:
 	void printCxt(std::vector<int> part_time);
 	//Контроль горизонтальной оси x
 	bool ControlX(int x);
-	//вычисление теор зависимости концентрации (обсудить с Васиным)
-	void CalcTheorCxt(int xmax);
+	//вычисление теор зависимости концентрации в случае неограниченного источника
+	void CalcTheorCxt(int xmax, double D, int t);
 };
