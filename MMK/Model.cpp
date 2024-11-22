@@ -52,14 +52,16 @@ void diffuz::SetWind()
 	EnterCriticalSection(&cs);
 	for (int i = 0; i < maxY; i++)
 	{
-		if (i < maxY * (1 - part_window) / 2 || i >= maxY * (1 - (1 - part_window) / 2))
-			occupansy[i][0] = true;
-		else
+		if (i >= maxY * (1 - part_window) / 2 && it < add_atom.size())
 		{
 			add_atom[it].x = 0;
 			add_atom[it].y = i;
 			occupansy[add_atom[it].y][0] = true;
 			it++;
+		}
+		else
+		{
+			occupansy[i][0] = true;
 		}
 	}
 	LeaveCriticalSection(&cs);
@@ -77,13 +79,14 @@ void diffuz::OneMKSunlimited(condition my_cond)
 	int size = atoms.size();
 	for (int a = 0; a < size; a++)
 	{
-		if (atoms[a].x == 0)
+		if (atoms[a].x == 0 && !occupansy[atoms[a].y][atoms[a].x + 1])
 		{
 			atoms[a].x++;
 			occupansy[atoms[a].y][atoms[a].x] = true;
 			continue;
 		}
-		Move(atoms[a]);
+		if (atoms[a].x != 0)
+			Move(atoms[a]);
 	}
 	SetSurfacePos(my_cond);
 }
@@ -267,7 +270,7 @@ void diffuz::printCxt(std::vector<int> part_time)
 
 bool diffuz::ControlX(int x)
 {
-	if (x >= occupansy.size() || x < 0)
+	if (x >= occupansy[0].size() || x < 0)
 		stop = true;
 	return stop;
 }
