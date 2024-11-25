@@ -81,5 +81,8 @@ public:
 	//Контроль горизонтальной оси x
 	bool ControlX(int x);
 	//вычисление теор зависимости концентрации в случае неограниченного источника
-	void CalcTheorCxt(int xmax, double D, int t);
+	void CalcTheorCxt(int xmax, double D, int t, int num_it);
+
+	std::vector<std::vector<double>> GetCxtPrac();
+	std::vector<std::vector<double>> GetCxtTheor(int xmax, std::vector<double> D, std::vector<int> t);
 };

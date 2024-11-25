@@ -20,13 +20,16 @@
 CMMKDlg::CMMKDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MMK_DIALOG, pParent)
 	, maxY(100)
-	, maxT(100)
-	, xmax(50)
+	, maxT(500)
+	, xmax(100)
 	, t1(10)
-	, t2(50)
-	, t3(98)
+	, t2(250)
+	, t3(499)
 	, part_wnd(0.3)
-	, period(5)
+	, period(0)
+	, D1(0.5)
+	, D2(0.5)
+	, D3(0.5)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -50,6 +53,12 @@ void CMMKDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT7, ed_period);
 	DDX_Control(pDX, IDC_TEXTPERIOD, text_period);
 	DDX_Control(pDX, IDC_TEXTPART, text_part);
+	DDX_Control(pDX, IDC_GR1, gr1);
+	DDX_Control(pDX, IDC_GR2, gr2);
+	DDX_Control(pDX, IDC_GR3, gr3);
+	DDX_Text(pDX, IDC_EDIT9, D1);
+	DDX_Text(pDX, IDC_EDIT10, D2);
+	DDX_Text(pDX, IDC_EDIT11, D3);
 }
 
 BEGIN_MESSAGE_MAP(CMMKDlg, CDialogEx)
@@ -62,6 +71,7 @@ BEGIN_MESSAGE_MAP(CMMKDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_RLIMITED, &CMMKDlg::OnBnClickedRlimited)
 	ON_BN_CLICKED(IDC_BUTTON2, &CMMKDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_BUTTON3, &CMMKDlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON4, &CMMKDlg::OnBnClickedButton4)
 END_MESSAGE_MAP()
 
 
@@ -222,4 +232,25 @@ void CMMKDlg::OnBnClickedButton3()
 	EnterCriticalSection(&material.cs_stop);
 	material.stop = !material.stop;
 	LeaveCriticalSection(&material.cs_stop);
+}
+
+
+void CMMKDlg::OnBnClickedButton4()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	UpdateData();
+	auto grPrac = material.GetCxtPrac();
+	auto grTheor = material.GetCxtTheor(xmax, std::vector<double>({ D1, D2, D3 }), std::vector<int>({ t1, t2, t3 }));
+	if (grPrac.size() != 3 || grTheor.size() != 3)
+	{
+		MessageBox(L"Не получилось трёх измерений концентрации", L"Ошибка");
+		return;
+	}
+	material.printCxt(std::vector<int>({ t1, t2, t3 }));
+	gr1.SetParam(std::vector<std::vector<double>>({ grPrac[0], grTheor[0] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
+	gr2.SetParam(std::vector<std::vector<double>>({ grPrac[1], grTheor[1] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
+	gr3.SetParam(std::vector<std::vector<double>>({ grPrac[2], grTheor[2] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
+	gr1.Invalidate(FALSE);
+	gr2.Invalidate(FALSE);
+	gr3.Invalidate(FALSE);
 }

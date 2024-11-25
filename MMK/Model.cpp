@@ -81,6 +81,7 @@ void diffuz::OneMKSunlimited(condition my_cond)
 	{
 		if (atoms[a].x == 0 && !occupansy[atoms[a].y][atoms[a].x + 1])
 		{
+			occupansy[atoms[a].y][atoms[a].x] = false;
 			atoms[a].x++;
 			occupansy[atoms[a].y][atoms[a].x] = true;
 			continue;
@@ -216,7 +217,7 @@ void diffuz::Main(int tmax, int ymax, int xmax, std::vector<int> part_time, int 
 		if (stop) break;
 		LeaveCriticalSection(&cs_stop);
 	}
-	printCxt(part_time);
+	//printCxt(part_time);
 }
 
 std::vector<std::pair<int, int>> diffuz::GetPosition()
@@ -250,7 +251,7 @@ void diffuz::CalcCxt(int xmax)
 void diffuz::printCxt(std::vector<int> part_time)
 {
 	ofstream output("CxtUnlimited.txt");
-	string str_x, str_t, str_Cxt;
+	string str_x, str_t, str_Cxt, str_theor;
 	for (int i = 0; i < Cxt.size(); i++)
 	{
 		str_t = to_string(part_time[i]);
@@ -259,10 +260,12 @@ void diffuz::printCxt(std::vector<int> part_time)
 		{
 			str_x = to_string(j);
 			str_Cxt = to_string(Cxt[i][j]);
+			str_theor = to_string(TheorCxt[i][j]);
 			replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
 			replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+			replace(str_theor.begin(), str_theor.end(), '.', ',');
 
-			output << str_t << "\t" << str_x << "\t" << str_Cxt << endl;
+			output << str_t << "\t" << str_x << "\t" << str_Cxt << "\t" << str_theor << endl;
 		}
 	}
 	output.close();
@@ -275,13 +278,26 @@ bool diffuz::ControlX(int x)
 	return stop;
 }
 
-void diffuz::CalcTheorCxt(int xmax, double D, int t)
+void diffuz::CalcTheorCxt(int xmax, double D, int t, int num_it)
 {
 	vector<double> Cx(xmax, 0);
-	double C0 = Cxt.back()[0];
+	double C0 = Cxt[num_it][0];
 	for (int i = 0; i < xmax; i++)
 	{
 		Cx[i] = C0 * erfc(i / (2. * sqrt(D * t)));
 	}
 	TheorCxt.push_back(Cx);
+}
+
+std::vector<std::vector<double>> diffuz::GetCxtPrac()
+{
+	return Cxt;
+}
+
+std::vector<std::vector<double>> diffuz::GetCxtTheor(int xmax, std::vector<double> D, std::vector<int> t)
+{
+	TheorCxt.clear();
+	for (int i = 0; i < D.size(); i++)
+		CalcTheorCxt(xmax, D[i], t[i], i);
+	return TheorCxt;
 }

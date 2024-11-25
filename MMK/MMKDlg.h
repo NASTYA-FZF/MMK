@@ -5,7 +5,7 @@
 #pragma once
 #include "MultikMD.h"
 #include "Model.h"
-
+#include "MyGraph.h"
 
 // Диалоговое окно CMMKDlg
 class CMMKDlg : public CDialogEx
@@ -63,4 +63,11 @@ public:
 	CStatic text_part;
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton3();
+	MyGraph gr1;
+	MyGraph gr2;
+	MyGraph gr3;
+	afx_msg void OnBnClickedButton4();
+	double D1;
+	double D2;
+	double D3;
 };
