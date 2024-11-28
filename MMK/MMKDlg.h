@@ -6,6 +6,7 @@
 #include "MultikMD.h"
 #include "Model.h"
 #include "MyGraph.h"
+#include "my_puasson.h"
 
 // Диалоговое окно CMMKDlg
 class CMMKDlg : public CDialogEx
@@ -70,4 +71,5 @@ public:
 	double D1;
 	double D2;
 	double D3;
+	my_puasson pic_izoline;
 };

@@ -189,6 +189,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="MultikMD.h" />
     <ClInclude Include="MyGraph.h" />
+    <ClInclude Include="my_puasson.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="MultikMD.cpp" />
     <ClCompile Include="MyGraph.cpp" />
+    <ClCompile Include="my_puasson.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

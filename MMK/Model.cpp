@@ -192,6 +192,7 @@ void diffuz::Main(int tmax, int ymax, int xmax, std::vector<int> part_time, int 
 {
 	atoms.clear();
 	Cxt.clear();
+	CxtWind.clear();
 	TheorCxt.clear();
 	maxY = ymax;
 	period = _period;
@@ -212,12 +213,13 @@ void diffuz::Main(int tmax, int ymax, int xmax, std::vector<int> part_time, int 
 		OneMKSunlimited(cond);
 		LeaveCriticalSection(&cs);
 		if (part_time.end() != find(part_time.begin(), part_time.end(), t))
-			CalcCxt(xmax);
+			CalcCxt(cond, xmax);
 		EnterCriticalSection(&cs_stop);
 		if (stop) break;
 		LeaveCriticalSection(&cs_stop);
 	}
-	//printCxt(part_time);
+	if (cond == wind)
+		printCxtWind();
 }
 
 std::vector<std::pair<int, int>> diffuz::GetPosition()
@@ -232,7 +234,7 @@ std::vector<std::pair<int, int>> diffuz::GetPosition()
 	return position;
 }
 
-void diffuz::CalcCxt(int xmax)
+void diffuz::CalcCxtUnlimited(int xmax)
 {
 	vector<double> Cx(xmax, 0);
 	for (int i = 0; i < xmax; i++)
@@ -246,6 +248,114 @@ void diffuz::CalcCxt(int xmax)
 		Cx[i] /= maxY;
 	}
 	Cxt.push_back(Cx);
+}
+
+void diffuz::CalcCxtWind(int xmax) //как сделать подсчет концентрации
+{
+	vector<vector<double>> Cx(maxY, vector<double>(xmax, 0));
+	int cur_y = 0;
+	int widthWind = maxY * part_window;
+	int first_bortik = maxY * (1 - part_window) / 2;
+	for (int x = 0; x < xmax; x++)//берем €чейку 5х5
+	{
+		if (x > 2 && x < xmax - 2)
+		{
+			for (int y = 0; y < maxY; y++)
+			{
+				for (int kx = floor(r_matr / 2); kx <= floor(r_matr / 2); kx++)
+				{
+					for (int ky = floor(r_matr / 2); ky <= floor(r_matr / 2); ky++)
+					{
+						cur_y = y + ky;
+						PeriodCond(cur_y);
+						Cx[y][x] += occupansy[cur_y][x + kx] ? 1 : 0;
+					}
+				}
+				Cx[y][x] /= 25; //так как €чейка 5х5
+			}
+		}
+		else
+			if (x == 0)
+			{
+				for (int y = first_bortik; y < first_bortik + widthWind; y++)
+				{
+					if (y > first_bortik && y < first_bortik + widthWind - 1)
+					{
+						Cx[y][x] += occupansy[y - 1][x] ? 1 : 0;
+						Cx[y][x] += occupansy[y + 1][x] ? 1 : 0;
+						Cx[y][x] += occupansy[y][x + 1] ? 1 : 0;
+						Cx[y][x] /= 3;
+					}
+					else
+					{
+						Cx[y][x] += occupansy[y == first_bortik ? y + 1 : y - 1][x] ? 1 : 0;
+						Cx[y][x] += occupansy[y][x + 1] ? 1 : 0;
+						Cx[y][x] /= 2;
+					}
+				}
+			}
+			else
+				if (x == 1 || x == xmax - 1)
+				{
+					for (int y = 0; y < maxY; y++)
+					{
+						//if (y > first_bortik || y < first_bortik + widthWind - 1)
+						//{
+						//	for (int kx = -1; kx <= 1; kx++)
+						//	{
+						//		for (int ky = -1; ky <= 1; ky++)
+						//		{
+						//			cur_y = y + ky;
+						//			PeriodCond(cur_y);
+						//			Cx[y][x] += occupansy[cur_y][x + kx] ? 1 : 0;
+						//		}
+						//	}
+						//	Cx[y][x] /= 9; //так как €чейка 3х3
+						//}
+						//else
+						//{
+							cur_y = y - 1;
+							PeriodCond(cur_y);
+							Cx[y][x] += occupansy[cur_y][x] ? 1 : 0;
+
+							cur_y = y + 1;
+							PeriodCond(cur_y);
+							Cx[y][x] += occupansy[cur_y][x] ? 1 : 0;
+							Cx[y][x] += occupansy[y][x < xmax / 2 ? x + 1 : x - 1] ? 1 : 0;
+							Cx[y][x] /= 3;
+						//}
+					}
+				}
+				else
+					if (x == 2 || x == xmax - 2)
+					{
+						for (int y = 0; y < maxY; y++)
+						{
+							for (int kx = -1; kx <= 1; kx++)
+							{
+								for (int ky = -1; ky <= 1; ky++)
+								{
+									cur_y = y + ky;
+									PeriodCond(cur_y);
+									Cx[y][x] += occupansy[cur_y][x + kx] ? 1 : 0;
+								}
+							}
+							Cx[y][x] /= 9; //так как €чейка 3х3
+						}
+					}
+	}
+	CxtWind.push_back(Cx);
+}
+
+void diffuz::CalcCxt(condition cond, int xmax)
+{
+	switch (cond)
+	{
+	case unlimitedNotAll:
+		CalcCxtUnlimited(xmax); break;
+	case wind:
+		CalcCxtWind(xmax); break;
+	}
 }
 
 void diffuz::printCxt(std::vector<int> part_time)
@@ -267,6 +377,29 @@ void diffuz::printCxt(std::vector<int> part_time)
 
 			output << str_t << "\t" << str_x << "\t" << str_Cxt << "\t" << str_theor << endl;
 		}
+	}
+	output.close();
+}
+
+void diffuz::printCxtWind()
+{
+	ofstream output("CxtUnlimited.txt");
+	string str_Cxt;
+	for (int i = 0; i < CxtWind.size(); i++)
+	{
+		for (int j = 0; j < CxtWind[i].size(); j++)
+		{
+			for (int k = 0; k < CxtWind[i][j].size(); k++)
+			{
+				str_Cxt = to_string(CxtWind[i][j][k]);
+				replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+				replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+
+				output << str_Cxt << "\t";
+			}
+			output << endl;
+		}
+		output << endl;
 	}
 	output.close();
 }

@@ -20,11 +20,11 @@
 CMMKDlg::CMMKDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MMK_DIALOG, pParent)
 	, maxY(100)
-	, maxT(500)
+	, maxT(100)
 	, xmax(100)
 	, t1(10)
-	, t2(250)
-	, t3(499)
+	, t2(50)
+	, t3(80)
 	, part_wnd(0.3)
 	, period(0)
 	, D1(0.5)
@@ -59,6 +59,7 @@ void CMMKDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT9, D1);
 	DDX_Text(pDX, IDC_EDIT10, D2);
 	DDX_Text(pDX, IDC_EDIT11, D3);
+	DDX_Control(pDX, IDC_PICIZOLINE, pic_izoline);
 }
 
 BEGIN_MESSAGE_MAP(CMMKDlg, CDialogEx)
@@ -86,7 +87,7 @@ BOOL CMMKDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Крупный значок
 	SetIcon(m_hIcon, FALSE);		// Мелкий значок
 
-	SetUnlimited();
+	SetWind();
 	// TODO: добавьте дополнительную инициализацию
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
@@ -239,18 +240,29 @@ void CMMKDlg::OnBnClickedButton4()
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	UpdateData();
-	auto grPrac = material.GetCxtPrac();
-	auto grTheor = material.GetCxtTheor(xmax, std::vector<double>({ D1, D2, D3 }), std::vector<int>({ t1, t2, t3 }));
-	if (grPrac.size() != 3 || grTheor.size() != 3)
+	std::vector<std::vector<double>> grPrac;
+	std::vector<std::vector<double>> grTheor;
+	switch (cond)
 	{
-		MessageBox(L"Не получилось трёх измерений концентрации", L"Ошибка");
-		return;
+	case unlimitedNotAll:
+		grPrac = material.GetCxtPrac();
+		grTheor = material.GetCxtTheor(xmax, std::vector<double>({ D1, D2, D3 }), std::vector<int>({ t1, t2, t3 }));
+		if (grPrac.size() != 3 || grTheor.size() != 3)
+		{
+			MessageBox(L"Не получилось трёх измерений концентрации", L"Ошибка");
+			return;
+		}
+		material.printCxt(std::vector<int>({ t1, t2, t3 }));
+		gr1.SetParam(std::vector<std::vector<double>>({ grPrac[0], grTheor[0] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
+		gr2.SetParam(std::vector<std::vector<double>>({ grPrac[1], grTheor[1] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
+		gr3.SetParam(std::vector<std::vector<double>>({ grPrac[2], grTheor[2] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
+		gr1.Invalidate(FALSE);
+		gr2.Invalidate(FALSE);
+		gr3.Invalidate(FALSE); break;
+	case wind:
+		pic_izoline.draw = true;
+		pic_izoline.setka = material.CxtWind.back();
+		pic_izoline.size_izoline = 10;
+		pic_izoline.Invalidate(FALSE);
 	}
-	material.printCxt(std::vector<int>({ t1, t2, t3 }));
-	gr1.SetParam(std::vector<std::vector<double>>({ grPrac[0], grTheor[0] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
-	gr2.SetParam(std::vector<std::vector<double>>({ grPrac[1], grTheor[1] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
-	gr3.SetParam(std::vector<std::vector<double>>({ grPrac[2], grTheor[2] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
-	gr1.Invalidate(FALSE);
-	gr2.Invalidate(FALSE);
-	gr3.Invalidate(FALSE);
 }

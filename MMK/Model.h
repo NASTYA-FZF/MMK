@@ -19,6 +19,8 @@ enum condition
 	limited,
 	wind
 };
+
+const int r_matr = 5;
 //процесс диффузии
 class diffuz
 {
@@ -30,7 +32,9 @@ class diffuz
 	std::vector<std::vector<bool>> occupansy;
 	//графики концентраций 3 шт.
 	std::vector<std::vector<double>> Cxt;
+
 	std::vector<std::vector<double>> TheorCxt;
+
 	//для периодических гу (число обозначает число пустых узлов)
 	int period;
 	//для окошечного гу (в середине какая доля окна)
@@ -39,6 +43,8 @@ class diffuz
 	int maxY;
 
 public:
+	std::vector<std::vector<std::vector<double>>> TheorCxtWind;
+	std::vector<std::vector<std::vector<double>>> CxtWind;
 	//крит секция
 	CRITICAL_SECTION cs;
 	CRITICAL_SECTION cs_pause;
@@ -75,9 +81,13 @@ public:
 	//получить инфу о занятых положениях
 	std::vector<std::pair<int, int>> GetPosition();
 	//рассчет концентрации
-	void CalcCxt(int xmax);
+	void CalcCxtUnlimited(int xmax);
+	void CalcCxtWind(int xmax);
+	void CalcCxt(condition cond, int xmax);
+	
 	//печать значений концентрации при неогр источнике
 	void printCxt(std::vector<int> part_time);
+	void printCxtWind();
 	//Контроль горизонтальной оси x
 	bool ControlX(int x);
 	//вычисление теор зависимости концентрации в случае неограниченного источника
