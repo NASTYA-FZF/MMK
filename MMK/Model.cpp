@@ -12,6 +12,8 @@ void diffuz::SetSurfacePos(condition my_cond)
 		SetUnlimitedNotAll(); break;
 	case wind:
 		SetWind(); break;
+	case limited:
+		SetLimited(); break;
 	}
 }
 
@@ -69,6 +71,21 @@ void diffuz::SetWind()
 	atoms.insert(atoms.end(), add_atom.begin(), add_atom.end());
 }
 
+void diffuz::SetLimited()
+{
+	atoms.resize(3 * maxY);
+	center = floor(maxX / 2);
+	for (int y = 0; y < maxY; y++)
+	{
+		atoms[3 * y].x = center;
+		atoms[3 * y + 1].x = center - 1;
+		atoms[3 * y + 2].x = center + 1;
+		atoms[3 * y].y = atoms[3 * y + 1].y = atoms[3 * y + 2].y = y;
+
+		occupansy[y][center - 1] = occupansy[y][center] = occupansy[y][center + 1] = true;
+	}
+}
+
 int diffuz::GetMove()
 {
 	return floor((int)((double)rand() / RAND_MAX * 4 + 1));
@@ -122,6 +139,29 @@ void diffuz::OneMKSwind()
 		Move(atoms[a]);
 	}
 	SetWind();
+}
+
+void diffuz::OneMKSlimited()
+{
+	int size = atoms.size();
+	for (int a = 0; a < size; a++)
+	{
+		/*if (atoms[a].x == center - 1 && !occupansy[atoms[a].y][atoms[a].x - 1])
+		{
+			occupansy[atoms[a].y][atoms[a].x] = false;
+			atoms[a].x--;
+			occupansy[atoms[a].y][atoms[a].x] = true;
+		}
+		else
+			if (atoms[a].x == center + 1 && !occupansy[atoms[a].y][atoms[a].x + 1])
+			{
+				occupansy[atoms[a].y][atoms[a].x] = false;
+				atoms[a].x++;
+				occupansy[atoms[a].y][atoms[a].x] = true;
+			}
+			else*/
+				Move(atoms[a]);
+	}
 }
 
 void diffuz::Move(atom& my_atom)
@@ -194,13 +234,35 @@ void diffuz::Main(int tmax, int ymax, int xmax, std::vector<int> part_time, int 
 	Cxt.clear();
 	CxtWind.clear();
 	TheorCxt.clear();
-	maxY = ymax;
+	maxY = ymax; maxX = xmax;
 	period = _period;
 	part_window = _part_wnd;
 	EnterCriticalSection(&cs);
 	occupansy = vector<vector<bool>>(ymax, vector<bool>(xmax));
 	LeaveCriticalSection(&cs);
 	SetSurfacePos(cond);
+	if (cond == limited)
+	{
+		for (int t = 0; t < tmax; t++)
+		{
+			Sleep(20);
+			if (pause)
+			{
+				t--;
+				continue;
+			}
+			EnterCriticalSection(&cs);
+			OneMKSlimited();
+			LeaveCriticalSection(&cs);
+			if (part_time.end() != find(part_time.begin(), part_time.end(), t))
+				CalcCxtUnlimited(xmax);
+			EnterCriticalSection(&cs_stop);
+			if (stop) break;
+			LeaveCriticalSection(&cs_stop);
+		}
+		printCxt(part_time);
+		return;
+	}
 	for (int t = 0; t < tmax; t++)
 	{
 		Sleep(20);
@@ -370,12 +432,13 @@ void diffuz::printCxt(std::vector<int> part_time)
 		{
 			str_x = to_string(j);
 			str_Cxt = to_string(Cxt[i][j]);
-			str_theor = to_string(TheorCxt[i][j]);
+			//str_theor = to_string(TheorCxt[i][j]);
 			replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
 			replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
-			replace(str_theor.begin(), str_theor.end(), '.', ',');
+			//replace(str_theor.begin(), str_theor.end(), '.', ',');
 
-			output << str_t << "\t" << str_x << "\t" << str_Cxt << "\t" << str_theor << endl;
+			//output << str_t << "\t" << str_x << "\t" << str_Cxt << "\t" << str_theor << endl;
+			output << str_t << "\t" << str_x << "\t" << str_Cxt  << endl;
 		}
 	}
 	output.close();

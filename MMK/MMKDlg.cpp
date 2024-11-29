@@ -133,6 +133,7 @@ DWORD __stdcall CMMKDlg::MyThreadFunction(LPVOID lpParam)
 {
 	CMMKDlg* my_process = (CMMKDlg*)lpParam;
 	my_process->material.Main(my_process->maxT, my_process->maxY, my_process->xmax, std::vector<int>({ my_process->t1, my_process->t2, my_process->t3 }), my_process->period, my_process->part_wnd, my_process->cond);
+	my_process->MessageBox(L"123", L"123");
 	return 0;
 }
 
@@ -148,7 +149,7 @@ void CMMKDlg::OnBnClickedButton1()
 		return;
 	}
 	evolution.SetParam(maxY, xmax, 0.5, 15);
-	my_timer = SetTimer(123, 15, NULL);
+	//my_timer = SetTimer(123, 15, NULL);
 	CreateThread(NULL, NULL, MyThreadFunction, this, NULL, NULL);
 }
 

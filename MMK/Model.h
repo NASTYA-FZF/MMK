@@ -41,6 +41,8 @@ class diffuz
 	double part_window;
 	//максимальное кол-во атомов по вертикали
 	int maxY;
+	int maxX;
+	int center;
 
 public:
 	std::vector<std::vector<std::vector<double>>> TheorCxtWind;
@@ -66,12 +68,14 @@ public:
 	//неогр. источник, но с дырами
 	void SetUnlimitedNotAll();
 	void SetWind();
+	void SetLimited();
 	//1-право, 2-вверх, 3-лево, 4-низ
 	int GetMove();
 	//один МКШ
 	void OneMKSunlimited(condition my_cond);
 	void OneMKSunlimitedNotAll();
 	void OneMKSwind();
+	void OneMKSlimited();
 	//Двинуть 1 атом
 	void Move(atom& my_atom);
 	//периодические гу по переходу внизу и сверху
