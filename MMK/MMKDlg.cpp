@@ -60,6 +60,8 @@ void CMMKDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT10, D2);
 	DDX_Text(pDX, IDC_EDIT11, D3);
 	DDX_Control(pDX, IDC_PICIZOLINE, pic_izoline);
+	DDX_Control(pDX, IDC_RADIO1, r_anim_yes);
+	DDX_Control(pDX, IDC_RADIO2, r_anim_no);
 }
 
 BEGIN_MESSAGE_MAP(CMMKDlg, CDialogEx)
@@ -73,6 +75,8 @@ BEGIN_MESSAGE_MAP(CMMKDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON2, &CMMKDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_BUTTON3, &CMMKDlg::OnBnClickedButton3)
 	ON_BN_CLICKED(IDC_BUTTON4, &CMMKDlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_RADIO1, &CMMKDlg::OnBnClickedRadio1)
+	ON_BN_CLICKED(IDC_RADIO2, &CMMKDlg::OnBnClickedRadio2)
 END_MESSAGE_MAP()
 
 
@@ -87,7 +91,10 @@ BOOL CMMKDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Крупный значок
 	SetIcon(m_hIcon, FALSE);		// Мелкий значок
 
+	srand(time(NULL));
 	SetWind();
+	animation = true;
+	r_anim_yes.SetCheck(BST_CHECKED);
 	// TODO: добавьте дополнительную инициализацию
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
@@ -132,6 +139,7 @@ HCURSOR CMMKDlg::OnQueryDragIcon()
 DWORD __stdcall CMMKDlg::MyThreadFunction(LPVOID lpParam)
 {
 	CMMKDlg* my_process = (CMMKDlg*)lpParam;
+	srand(my_process->random_my);
 	my_process->material.Main(my_process->maxT, my_process->maxY, my_process->xmax, std::vector<int>({ my_process->t1, my_process->t2, my_process->t3 }), my_process->period, my_process->part_wnd, my_process->cond);
 	my_process->MessageBox(L"123", L"123");
 	return 0;
@@ -143,14 +151,26 @@ void CMMKDlg::OnBnClickedButton1()
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	UpdateData();
+	KillTimer(my_timer);
 	if (part_wnd >= 1)
 	{
 		MessageBox(L"Доля окна должна быть меньше единицы", L"Ошибка!");
 		return;
 	}
 	evolution.SetParam(maxY, xmax, 0.5, 15);
-	//my_timer = SetTimer(123, 15, NULL);
+	if (animation)
+		my_timer = SetTimer(123, 15, NULL);
+	random_my = rand();
 	CreateThread(NULL, NULL, MyThreadFunction, this, NULL, NULL);
+	if (cond == limited)
+	{
+		int center = floor(xmax / 2);
+		x1.resize(xmax);
+		for (int i = 0; i < xmax; i++)
+		{
+			x1[i] = i - center;
+		}
+	}
 }
 
 void CMMKDlg::OnTimer(UINT_PTR nIDEvent)
@@ -159,7 +179,7 @@ void CMMKDlg::OnTimer(UINT_PTR nIDEvent)
 	EnterCriticalSection(&material.cs);
 	evolution.atoms = material.GetPosition();
 	LeaveCriticalSection(&material.cs);
-	Invalidate(FALSE);
+	evolution.Invalidate(FALSE);
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -263,7 +283,42 @@ void CMMKDlg::OnBnClickedButton4()
 	case wind:
 		pic_izoline.draw = true;
 		pic_izoline.setka = material.CxtWind.back();
-		pic_izoline.size_izoline = 10;
+		pic_izoline.size_izoline = 4;
 		pic_izoline.Invalidate(FALSE);
+		material.printCxtWind(); break;
+	case limited:
+		grPrac = material.GetCxtPrac();
+		grTheor = material.GetCxtTheorLimited(xmax, std::vector<double>({ D1, D2, D3 }), std::vector<int>({ t1, t2, t3 }));
+		if (grPrac.size() != 3 || grTheor.size() != 3)
+		{
+			MessageBox(L"Не получилось трёх измерений концентрации", L"Ошибка");
+			return;
+		}
+		material.printCxtLimited(std::vector<int>({ t1, t2, t3 }));
+		gr1.SetParam(std::vector<std::vector<double>>({ grPrac[0], grTheor[0] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }), std::vector<std::vector<double>>({ x1, x1 }));
+		gr2.SetParam(std::vector<std::vector<double>>({ grPrac[1], grTheor[1] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }), std::vector<std::vector<double>>({ x1, x1 }));
+		gr3.SetParam(std::vector<std::vector<double>>({ grPrac[2], grTheor[2] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }), std::vector<std::vector<double>>({ x1, x1 }));
+		gr1.Invalidate(FALSE);
+		gr2.Invalidate(FALSE);
+		gr3.Invalidate(FALSE); break;
 	}
+}
+
+
+void CMMKDlg::OnBnClickedRadio1()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	r_anim_yes.SetCheck(BST_CHECKED);
+	r_anim_no.SetCheck(BST_UNCHECKED);
+	animation = true;
+}
+
+
+void CMMKDlg::OnBnClickedRadio2()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	KillTimer(my_timer);
+	r_anim_yes.SetCheck(BST_UNCHECKED);
+	r_anim_no.SetCheck(BST_CHECKED);
+	animation = false;
 }

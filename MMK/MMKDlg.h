@@ -7,6 +7,8 @@
 #include "Model.h"
 #include "MyGraph.h"
 #include "my_puasson.h"
+#include <cstdlib>
+#include <ctime>
 
 // Диалоговое окно CMMKDlg
 class CMMKDlg : public CDialogEx
@@ -72,4 +74,11 @@ public:
 	double D2;
 	double D3;
 	my_puasson pic_izoline;
+	std::vector<double> x1;
+	int random_my;
+	bool animation;
+	CButton r_anim_yes;
+	CButton r_anim_no;
+	afx_msg void OnBnClickedRadio1();
+	afx_msg void OnBnClickedRadio2();
 };

@@ -1,7 +1,5 @@
 #pragma once
 #include <vector>
-#include <cstdlib>
-#include <ctime>
 #include <algorithm>
 #include <fstream>
 #include <string>
@@ -92,11 +90,14 @@ public:
 	//печать значений концентрации при неогр источнике
 	void printCxt(std::vector<int> part_time);
 	void printCxtWind();
+	void printCxtLimited(std::vector<int> part_time);
 	//Контроль горизонтальной оси x
 	bool ControlX(int x);
 	//вычисление теор зависимости концентрации в случае неограниченного источника
 	void CalcTheorCxt(int xmax, double D, int t, int num_it);
+	void CalcTheorCxtLimited(int xmax, double D, int t, int num_it);
 
 	std::vector<std::vector<double>> GetCxtPrac();
 	std::vector<std::vector<double>> GetCxtTheor(int xmax, std::vector<double> D, std::vector<int> t);
+	std::vector<std::vector<double>> GetCxtTheorLimited(int xmax, std::vector<double> D, std::vector<int> t);
 };

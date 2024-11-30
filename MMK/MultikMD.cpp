@@ -34,7 +34,36 @@ END_MESSAGE_MAP()
 // Обработчики сообщений MultikMD
 
 
+int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+{
+	UINT  num = 0;          // number of image encoders
+	UINT  size = 0;         // size of the image encoder array in bytes
 
+	ImageCodecInfo* pImageCodecInfo = NULL;
+
+	GetImageEncodersSize(&num, &size);
+	if (size == 0)
+		return -1;  // Failure
+
+	pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
+	if (pImageCodecInfo == NULL)
+		return -1;  // Failure
+
+	GetImageEncoders(num, size, pImageCodecInfo);
+
+	for (UINT j = 0; j < num; ++j)
+	{
+		if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
+		{
+			*pClsid = pImageCodecInfo[j].Clsid;
+			free(pImageCodecInfo);
+			return j;  // Success
+		}
+	}
+
+	free(pImageCodecInfo);
+	return -1;  // Failure
+}
 
 void MultikMD::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 {
@@ -112,7 +141,9 @@ void MultikMD::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 		draw_in_buffer.FillEllipse(&b_atom, points[0].X,
 			points[0].Y, points[1].X - points[0].X, points[1].Y - points[0].Y);
 	}
-
+	CLSID pngClsid;
+	GetEncoderClsid(L"image/png", &pngClsid);
+	buffer.Save(L"configuration.png", &pngClsid);
 	//выводи из буфера
 	wnd.DrawImage(&buffer, 0, 0, 0, 0, lpDrawItemStruct->rcItem.right, lpDrawItemStruct->rcItem.bottom, UnitPixel);
 }

@@ -82,11 +82,11 @@ void my_puasson::CreateIzoline(Gdiplus::Graphics* my_dr)
 	my_const.resize(size_izoline);
 	for (int i = 0; i < size_izoline; i++)
 	{
-		my_const[i] = (double)i / size_izoline;
+		my_const[i] = (double)(i + 1) / size_izoline;
 	}
 	my_izoline = vector<vector<pair<double, double>>>(size_izoline);
 
-	bool first = true;
+	//bool first = true;
 	
 	Pen white_pen(Color::White, 3), black_pen(Color::Black, 2);
 
@@ -97,7 +97,7 @@ void my_puasson::CreateIzoline(Gdiplus::Graphics* my_dr)
 
 	for (int i = 0; i < setka.size() - 1; i++)
 	{
-		for (int j = 0; j < setka[i].size() - 1; j++)
+		for (int j = 1; j < setka[i].size() - 1; j++)
 		{
 			for (int k = 0; k < size_izoline; k++)
 			{
@@ -129,9 +129,10 @@ void my_puasson::CreateIzoline(Gdiplus::Graphics* my_dr)
 					pt[0] = PointF(my_izoline[k][my_izoline[k].size() - 2].first, my_izoline[k][my_izoline[k].size() - 2].second);
 					pt[1] = PointF(my_izoline[k][my_izoline[k].size() - 1].first, my_izoline[k][my_izoline[k].size() - 1].second);
 					matr.TransformPoints(pt, 2);
+					my_dr->DrawLine(&black_pen, pt[0], pt[1]);
 				}
 
-				my_dr->DrawLine(&black_pen, pt[0], pt[1]);
+				//my_dr->DrawLine(&black_pen, pt[0], pt[1]);
 				my_izoline[k].clear();
 			}
 		}
