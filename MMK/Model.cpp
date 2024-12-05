@@ -433,22 +433,37 @@ void diffuz::CalcCxt(condition cond, int xmax)
 void diffuz::printCxt(std::vector<int> part_time)
 {
 	ofstream output("CxtUnlimited.txt");
-	string str_x, str_t, str_Cxt, str_theor;
-	for (int i = 0; i < Cxt.size(); i++)
+	string str_x, str_t1, str_Cxt, str_theor, str_t2, str_t3;
+	str_t1 = to_string(part_time[0]);
+	replace(str_t1.begin(), str_t1.end(), '.', ',');
+	str_t2 = to_string(part_time[1]);
+	replace(str_t2.begin(), str_t2.end(), '.', ',');
+	str_t3 = to_string(part_time[2]);
+	replace(str_t3.begin(), str_t3.end(), '.', ',');
+	for (int j = num_sloy; j < Cxt[0].size(); j++)
 	{
-		str_t = to_string(part_time[i]);
-		replace(str_t.begin(), str_t.end(), '.', ',');
-		for (int j = 0; j < Cxt[i].size(); j++)
-		{
-			str_x = to_string(j);
-			str_Cxt = to_string(Cxt[i][j]);
-			str_theor = to_string(TheorCxt[i][j]);
-			replace(str_x.begin(), str_x.end(), '.', ',');
-			replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
-			replace(str_theor.begin(), str_theor.end(), '.', ',');
+		str_x = to_string(j);
+		str_Cxt = to_string(Cxt[0][j]);
+		str_theor = to_string(TheorCxt[0][j - num_sloy]);
+		replace(str_x.begin(), str_x.end(), '.', ',');
+		replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+		replace(str_theor.begin(), str_theor.end(), '.', ',');
 
-			output << str_t << "\t" << str_x << "\t" << str_Cxt << "\t" << str_theor << endl;
-		}
+		output << str_x << "\t" << str_t1 << "\t" << str_Cxt << "\t" << str_theor << "\t";
+
+		str_Cxt = to_string(Cxt[1][j]);
+		str_theor = to_string(TheorCxt[1][j - num_sloy]);
+		replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+		replace(str_theor.begin(), str_theor.end(), '.', ',');
+
+		output << str_t2 << "\t" << str_Cxt << "\t" << str_theor << "\t";
+
+		str_Cxt = to_string(Cxt[2][j]);
+		str_theor = to_string(TheorCxt[2][j - num_sloy]);
+		replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+		replace(str_theor.begin(), str_theor.end(), '.', ',');
+
+		output << str_t3 << "\t" << str_Cxt << "\t" << str_theor << endl;
 	}
 	output.close();
 }
@@ -479,22 +494,37 @@ void diffuz::printCxtWind()
 void diffuz::printCxtLimited(std::vector<int> part_time)
 {
 	ofstream output("CxtUnlimited.txt");
-	string str_x, str_t, str_Cxt, str_theor;
-	for (int i = 0; i < Cxt.size(); i++)
+	string str_x, str_t1, str_Cxt, str_theor, str_t2, str_t3;
+	str_t1 = to_string(part_time[0]);
+	replace(str_t1.begin(), str_t1.end(), '.', ',');
+	str_t2 = to_string(part_time[1]);
+	replace(str_t2.begin(), str_t2.end(), '.', ',');
+	str_t3 = to_string(part_time[2]);
+	replace(str_t3.begin(), str_t3.end(), '.', ',');
+	for (int j = 0; j < Cxt[0].size(); j++)
 	{
-		str_t = to_string(part_time[i]);
-		replace(str_t.begin(), str_t.end(), '.', ',');
-		for (int j = 0; j < Cxt[i].size(); j++)
-		{
-			str_x = to_string(j - center);
-			str_Cxt = to_string(Cxt[i][j]);
-			str_theor = to_string(TheorCxt[i][j]);
-			replace(str_x.begin(), str_x.end(), '.', ',');
-			replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
-			replace(str_theor.begin(), str_theor.end(), '.', ',');
+		str_x = to_string(j);
+		str_Cxt = to_string(Cxt[0][j]);
+		str_theor = to_string(TheorCxt[0][j]);
+		replace(str_x.begin(), str_x.end(), '.', ',');
+		replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+		replace(str_theor.begin(), str_theor.end(), '.', ',');
 
-			output << str_t << "\t" << str_x << "\t" << str_Cxt << "\t" << str_theor << endl;
-		}
+		output << str_x << "\t" << str_t1 << "\t" << str_Cxt << "\t" << str_theor << "\t";
+
+		str_Cxt = to_string(Cxt[1][j]);
+		str_theor = to_string(TheorCxt[1][j]);
+		replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+		replace(str_theor.begin(), str_theor.end(), '.', ',');
+
+		output << str_t2 << "\t" << str_Cxt << "\t" << str_theor << "\t";
+
+		str_Cxt = to_string(Cxt[2][j]);
+		str_theor = to_string(TheorCxt[2][j]);
+		replace(str_Cxt.begin(), str_Cxt.end(), '.', ',');
+		replace(str_theor.begin(), str_theor.end(), '.', ',');
+
+		output << str_t3 << "\t" << str_Cxt << "\t" << str_theor << endl;
 	}
 	output.close();
 }
@@ -508,11 +538,24 @@ bool diffuz::ControlX(int x)
 
 void diffuz::CalcTheorCxt(int xmax, double D, int t, int num_it)
 {
-	vector<double> Cx(xmax, 0);
-	double C0 = Cxt[num_it][0];
-	for (int i = 0; i < xmax; i++)
+	vector<double> Cx(xmax - num_sloy, 0);
+	double sum = 0;
+	double energy = 0;
+	double C0 = Cxt[num_it][num_sloy];
+	for (int i = 0; i < Cx.size(); i++)
 	{
 		Cx[i] = C0 * erfc(i / (2. * sqrt(D * t)));
+		sum += (Cx[i] - Cxt[num_it][i + num_sloy]) * (Cx[i] - Cxt[num_it][i + num_sloy]);
+		energy += Cx[i] * Cx[i];
+	}
+	switch (num_it)
+	{
+	case 0:
+		mark1 = 100 * sum / energy; break;
+	case 1:
+		mark2 = 100 * sum / energy; break;
+	case 2:
+		mark3 = 100 * sum / energy; break;
 	}
 	TheorCxt.push_back(Cx);
 }
@@ -520,24 +563,42 @@ void diffuz::CalcTheorCxt(int xmax, double D, int t, int num_it)
 void diffuz::CalcTheorCxtLimited(int xmax, double D, int t, int num_it)
 {
 	vector<double> Cx(xmax, 0);
-	double C0 = 0;
-	for (int i = -1; i <= 1; i++)
-		C0 += Cxt[num_it][center + i];
-	C0 /= 3;
+	double C0 = Cxt[num_it][center];
+	double sum = 0;
+	double energy = 0;
+	//for (int i = -1; i <= 1; i++)
+	//	C0 += Cxt[num_it][center + i];
+	//C0 /= 3;
 	for (int i = 0; i < xmax; i++)
 	{
 		Cx[i] = C0 * exp(-(i - center) * (i - center) / (4 * D * t))/* / sqrt(M_PI * D * t)*/;
+		sum += (Cx[i] - Cxt[num_it][i + num_sloy]) * (Cx[i] - Cxt[num_it][i + num_sloy]);
+		energy += Cx[i] * Cx[i];
+	}
+	switch (num_it)
+	{
+	case 0:
+		mark1 = 100 * sum / energy; break;
+	case 1:
+		mark2 = 100 * sum / energy; break;
+	case 2:
+		mark3 = 100 * sum / energy; break;
 	}
 	TheorCxt.push_back(Cx);
 }
 
 std::vector<std::vector<double>> diffuz::GetCxtPrac()
 {
-	return Cxt;
+	auto res = Cxt;
+	res[0].erase(res[0].begin(), res[0].begin() + num_sloy);
+	res[1].erase(res[1].begin(), res[1].begin() + num_sloy);
+	res[2].erase(res[2].begin(), res[2].begin() + num_sloy);
+	return res;
 }
 
-std::vector<std::vector<double>> diffuz::GetCxtTheor(int xmax, std::vector<double> D, std::vector<int> t)
+std::vector<std::vector<double>> diffuz::GetCxtTheor(int xmax, std::vector<double> D, std::vector<int> t, int nums_sloy)
 {
+	num_sloy = nums_sloy;
 	TheorCxt.clear();
 	for (int i = 0; i < D.size(); i++)
 		CalcTheorCxt(xmax, D[i], t[i], i);

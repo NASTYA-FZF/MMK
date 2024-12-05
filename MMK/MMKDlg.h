@@ -81,4 +81,10 @@ public:
 	CButton r_anim_no;
 	afx_msg void OnBnClickedRadio1();
 	afx_msg void OnBnClickedRadio2();
+	int num_sloy1;
+	int num_sloy2;
+	int num_sloy3;
+	CEdit ed_mark1;
+	CEdit ed_mark2;
+	CEdit ed_mark3;
 };

@@ -45,6 +45,10 @@ class diffuz
 public:
 	std::vector<std::vector<std::vector<double>>> TheorCxtWind;
 	std::vector<std::vector<std::vector<double>>> CxtWind;
+	int num_sloy;
+	double mark1;
+	double mark2;
+	double mark3;
 	//крит секция
 	CRITICAL_SECTION cs;
 	CRITICAL_SECTION cs_pause;
@@ -98,6 +102,6 @@ public:
 	void CalcTheorCxtLimited(int xmax, double D, int t, int num_it);
 
 	std::vector<std::vector<double>> GetCxtPrac();
-	std::vector<std::vector<double>> GetCxtTheor(int xmax, std::vector<double> D, std::vector<int> t);
+	std::vector<std::vector<double>> GetCxtTheor(int xmax, std::vector<double> D, std::vector<int> t, int nums_sloy);
 	std::vector<std::vector<double>> GetCxtTheorLimited(int xmax, std::vector<double> D, std::vector<int> t);
 };

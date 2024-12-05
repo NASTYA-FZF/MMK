@@ -19,17 +19,20 @@
 
 CMMKDlg::CMMKDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MMK_DIALOG, pParent)
-	, maxY(100)
-	, maxT(100)
-	, xmax(100)
+	, maxY(10000)
+	, maxT(600)
+	, xmax(400)
 	, t1(10)
-	, t2(50)
-	, t3(80)
+	, t2(300)
+	, t3(590)
 	, part_wnd(0.3)
 	, period(0)
 	, D1(0.5)
 	, D2(0.5)
 	, D3(0.5)
+	, num_sloy1(2)
+	, num_sloy2(0)
+	, num_sloy3(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -62,6 +65,12 @@ void CMMKDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PICIZOLINE, pic_izoline);
 	DDX_Control(pDX, IDC_RADIO1, r_anim_yes);
 	DDX_Control(pDX, IDC_RADIO2, r_anim_no);
+	DDX_Text(pDX, IDC_EDIT12, num_sloy1);
+	DDX_Text(pDX, IDC_EDIT13, num_sloy2);
+	DDX_Text(pDX, IDC_EDIT14, num_sloy3);
+	DDX_Control(pDX, IDC_EDIT13, ed_mark1);
+	DDX_Control(pDX, IDC_EDIT14, ed_mark2);
+	DDX_Control(pDX, IDC_EDIT15, ed_mark3);
 }
 
 BEGIN_MESSAGE_MAP(CMMKDlg, CDialogEx)
@@ -92,9 +101,9 @@ BOOL CMMKDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Мелкий значок
 
 	srand(time(NULL));
-	SetWind();
-	animation = true;
-	r_anim_yes.SetCheck(BST_CHECKED);
+	SetUnlimited();
+	animation = false;
+	r_anim_no.SetCheck(BST_CHECKED);
 	// TODO: добавьте дополнительную инициализацию
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
@@ -263,16 +272,25 @@ void CMMKDlg::OnBnClickedButton4()
 	UpdateData();
 	std::vector<std::vector<double>> grPrac;
 	std::vector<std::vector<double>> grTheor;
+	CString str1, str2, str3;
 	switch (cond)
 	{
 	case unlimitedNotAll:
+		grTheor = material.GetCxtTheor(xmax, std::vector<double>({ D1, D2, D3 }), std::vector<int>({ t1, t2, t3 }), num_sloy1);
 		grPrac = material.GetCxtPrac();
-		grTheor = material.GetCxtTheor(xmax, std::vector<double>({ D1, D2, D3 }), std::vector<int>({ t1, t2, t3 }));
 		if (grPrac.size() != 3 || grTheor.size() != 3)
 		{
 			MessageBox(L"Не получилось трёх измерений концентрации", L"Ошибка");
 			return;
 		}
+
+		str1.Format(L"%f", material.mark1);
+		ed_mark1.SetWindowTextW(str1);
+		str2.Format(L"%f", material.mark2);
+		ed_mark2.SetWindowTextW(str2);
+		str3.Format(L"%f", material.mark3);
+		ed_mark3.SetWindowTextW(str3);
+
 		material.printCxt(std::vector<int>({ t1, t2, t3 }));
 		gr1.SetParam(std::vector<std::vector<double>>({ grPrac[0], grTheor[0] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
 		gr2.SetParam(std::vector<std::vector<double>>({ grPrac[1], grTheor[1] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }));
@@ -294,6 +312,14 @@ void CMMKDlg::OnBnClickedButton4()
 			MessageBox(L"Не получилось трёх измерений концентрации", L"Ошибка");
 			return;
 		}
+
+		str1.Format(L"%f", material.mark1);
+		ed_mark1.SetWindowTextW(str1);
+		str2.Format(L"%f", material.mark2);
+		ed_mark2.SetWindowTextW(str2);
+		str3.Format(L"%f", material.mark3);
+		ed_mark3.SetWindowTextW(str3);
+
 		material.printCxtLimited(std::vector<int>({ t1, t2, t3 }));
 		gr1.SetParam(std::vector<std::vector<double>>({ grPrac[0], grTheor[0] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }), std::vector<std::vector<double>>({ x1, x1 }));
 		gr2.SetParam(std::vector<std::vector<double>>({ grPrac[1], grTheor[1] }), true, std::vector<Gdiplus::Color>({ Gdiplus::Color::Red, Gdiplus::Color::Blue }), std::vector<std::vector<double>>({ x1, x1 }));
