@@ -334,9 +334,9 @@ void diffuz::CalcCxtWind(int xmax) //как сделать подсчет концентрации
 		{
 			for (int y = 0; y < maxY; y++)
 			{
-				for (int kx = floor(r_matr / 2); kx <= floor(r_matr / 2); kx++)
+				for (int kx = -floor(r_matr / 2); kx <= floor(r_matr / 2); kx++)
 				{
-					for (int ky = floor(r_matr / 2); ky <= floor(r_matr / 2); ky++)
+					for (int ky = -floor(r_matr / 2); ky <= floor(r_matr / 2); ky++)
 					{
 						cur_y = y + ky;
 						PeriodCond(cur_y);
